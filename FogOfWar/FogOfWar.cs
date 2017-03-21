@@ -4,10 +4,10 @@ using Microsoft.Xna.Framework.Input;
 
 using System.Collections.Generic;
 
+/**
+ * A quick proof of concept for 2D fog of war.
+ */
 namespace FogOfWar {
-    /// <summary>
-    /// This is the main type for your game.
-    /// </summary>
     public class FogOfWar : Game {
         struct Entity {
             public Texture2D sprite;
@@ -127,8 +127,6 @@ namespace FogOfWar {
             }
 
             orb.position = intersects ? orb.position : newPosition;
-
-            // TODO: Add your update logic here
 
             base.Update(gameTime);
         }
