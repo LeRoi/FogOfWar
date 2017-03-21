@@ -81,6 +81,13 @@ namespace FogOfWar {
                 walls.Add(new Entity(wallSprite, getWallPosition(0, j)));
                 walls.Add(new Entity(wallSprite, getWallPosition(width / wallSprite.Width, j)));
             }
+
+            walls.Add(new Entity(wallSprite, getWallPosition(4, 15)));
+            walls.Add(new Entity(wallSprite, getWallPosition(5, 15)));
+            walls.Add(new Entity(wallSprite, getWallPosition(6, 15)));
+            walls.Add(new Entity(wallSprite, getWallPosition(7, 15)));
+            walls.Add(new Entity(wallSprite, getWallPosition(8, 15)));
+            walls.Add(new Entity(wallSprite, getWallPosition(9, 15)));
         }
 
         /// <summary>
@@ -117,14 +124,15 @@ namespace FogOfWar {
             if (keyboard.IsKeyDown(Keys.S)) newPosition.Y += orbSpeed;
             if (keyboard.IsKeyDown(Keys.W)) newPosition.Y -= orbSpeed;
 
+            Rectangle newOrb = new Rectangle((int) newPosition.X, (int) newPosition.Y,
+                    orb.sprite.Width, orb.sprite.Height);
             bool intersects = false;
             foreach (Entity wall in walls) {
                 Rectangle wallDims = wall.getRect();
-                if (wallDims.Intersects(new Rectangle((int) newPosition.X, (int) newPosition.Y,
-                    orb.sprite.Width, orb.sprite.Height))) {
-                    intersects = true;
-                }
+                if (wall.getRect().Intersects(newOrb)) intersects = true;
             }
+
+            if (tank.getRect().Intersects(newOrb)) intersects = true;
 
             orb.position = intersects ? orb.position : newPosition;
 
