@@ -11,6 +11,7 @@ namespace FogOfWar {
     public class Sprites {
         public static string ORB = "orb";
         public static string TANK = "tank";
+        public static string WALL = "wall";
 
         private Dictionary<String, Texture2D> sprites;
 
@@ -18,6 +19,7 @@ namespace FogOfWar {
             sprites = new Dictionary<string, Texture2D>();
             sprites[ORB] = content.Load<Texture2D>("entities/orb");
             sprites[TANK] = content.Load<Texture2D>("entities/tank");
+            sprites[WALL] = content.Load<Texture2D>("entities/wall");
         }
 
         public Texture2D this[string key] {
