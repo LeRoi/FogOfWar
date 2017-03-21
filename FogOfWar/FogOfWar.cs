@@ -6,13 +6,31 @@ namespace FogOfWar {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game {
+    public class FogOfWar : Game {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Sprites sprites;
 
-        public Game1() {
+        private int width = 500;
+        private int height = 500;
+
+        // Orb fields
+        private Texture2D orbSprite;
+        private Vector2 position;
+
+        public FogOfWar() {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            graphics.PreferredBackBufferHeight = height;
+            graphics.PreferredBackBufferWidth = width;
+
+            this.IsMouseVisible = false;
+            this.IsFixedTimeStep = true;
+            graphics.SynchronizeWithVerticalRetrace = true;
+            // Default to 60fps
+            // Use fixed game loop instead of variable TimeStep
+            // May result in less smooth experience on high-end machines
         }
 
         /// <summary>
@@ -22,9 +40,10 @@ namespace FogOfWar {
         /// and initialize them as well.
         /// </summary>
         protected override void Initialize() {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
+
+            position = new Vector2(height / 2, width / 2);
+            orbSprite = sprites[Sprites.ORB];
         }
 
         /// <summary>
@@ -32,10 +51,8 @@ namespace FogOfWar {
         /// all of your content.
         /// </summary>
         protected override void LoadContent() {
-            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            sprites = new Sprites(Content);
         }
 
         /// <summary>
@@ -55,6 +72,12 @@ namespace FogOfWar {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            KeyboardState keyboard = Keyboard.GetState();
+            if (keyboard.IsKeyDown(Keys.D)) position.X += 1;
+            if (keyboard.IsKeyDown(Keys.A)) position.X -= 1;
+            if (keyboard.IsKeyDown(Keys.S)) position.Y += 1;
+            if (keyboard.IsKeyDown(Keys.W)) position.Y -= 1;
+
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -65,9 +88,13 @@ namespace FogOfWar {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                null, null, null, null, null);
+            spriteBatch.Draw(orbSprite, new Rectangle((int) position.X, (int) position.Y,
+                orbSprite.Width, orbSprite.Height), Color.White);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
