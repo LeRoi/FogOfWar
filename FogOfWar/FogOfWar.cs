@@ -17,6 +17,7 @@ namespace FogOfWar {
         // Orb fields
         private Texture2D orbSprite;
         private Vector2 orbPosition;
+        private int orbSpeed = 1;
 
         // Tank fields
         private Texture2D tankSprite;
@@ -80,10 +81,10 @@ namespace FogOfWar {
                 Exit();
 
             KeyboardState keyboard = Keyboard.GetState();
-            if (keyboard.IsKeyDown(Keys.D)) orbPosition.X += 1;
-            if (keyboard.IsKeyDown(Keys.A)) orbPosition.X -= 1;
-            if (keyboard.IsKeyDown(Keys.S)) orbPosition.Y += 1;
-            if (keyboard.IsKeyDown(Keys.W)) orbPosition.Y -= 1;
+            if (keyboard.IsKeyDown(Keys.D)) orbPosition.X += orbSpeed;
+            if (keyboard.IsKeyDown(Keys.A)) orbPosition.X -= orbSpeed;
+            if (keyboard.IsKeyDown(Keys.S)) orbPosition.Y += orbSpeed;
+            if (keyboard.IsKeyDown(Keys.W)) orbPosition.Y -= orbSpeed;
 
             // TODO: Add your update logic here
 
