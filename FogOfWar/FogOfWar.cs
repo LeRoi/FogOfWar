@@ -16,7 +16,11 @@ namespace FogOfWar {
 
         // Orb fields
         private Texture2D orbSprite;
-        private Vector2 position;
+        private Vector2 orbPosition;
+
+        // Tank fields
+        private Texture2D tankSprite;
+        private Vector2 tankPosition;
 
         public FogOfWar() {
             graphics = new GraphicsDeviceManager(this);
@@ -42,8 +46,11 @@ namespace FogOfWar {
         protected override void Initialize() {
             base.Initialize();
 
-            position = new Vector2(height / 2, width / 2);
+            orbPosition = new Vector2(width / 2, height / 2);
             orbSprite = sprites[Sprites.ORB];
+
+            tankPosition = new Vector2(100, 100);
+            tankSprite = sprites[Sprites.TANK];
         }
 
         /// <summary>
@@ -73,10 +80,10 @@ namespace FogOfWar {
                 Exit();
 
             KeyboardState keyboard = Keyboard.GetState();
-            if (keyboard.IsKeyDown(Keys.D)) position.X += 1;
-            if (keyboard.IsKeyDown(Keys.A)) position.X -= 1;
-            if (keyboard.IsKeyDown(Keys.S)) position.Y += 1;
-            if (keyboard.IsKeyDown(Keys.W)) position.Y -= 1;
+            if (keyboard.IsKeyDown(Keys.D)) orbPosition.X += 1;
+            if (keyboard.IsKeyDown(Keys.A)) orbPosition.X -= 1;
+            if (keyboard.IsKeyDown(Keys.S)) orbPosition.Y += 1;
+            if (keyboard.IsKeyDown(Keys.W)) orbPosition.Y -= 1;
 
             // TODO: Add your update logic here
 
@@ -92,7 +99,11 @@ namespace FogOfWar {
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 null, null, null, null, null);
-            spriteBatch.Draw(orbSprite, new Rectangle((int) position.X, (int) position.Y,
+
+            spriteBatch.Draw(tankSprite, new Rectangle((int) tankPosition.X, (int) tankPosition.Y,
+                tankSprite.Width, tankSprite.Height), Color.White);
+
+            spriteBatch.Draw(orbSprite, new Rectangle((int) orbPosition.X, (int) orbPosition.Y,
                 orbSprite.Width, orbSprite.Height), Color.White);
             spriteBatch.End();
 
