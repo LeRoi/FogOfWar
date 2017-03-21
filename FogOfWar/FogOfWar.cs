@@ -26,7 +26,10 @@ namespace FogOfWar {
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteBatch fogBatch;
         Sprites sprites;
+
+        Effect fog;
 
         private int width = 500;
         private int height = 500;
@@ -96,7 +99,10 @@ namespace FogOfWar {
         /// </summary>
         protected override void LoadContent() {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            fogBatch = new SpriteBatch(GraphicsDevice);
             sprites = new Sprites(Content);
+
+            fog = Content.Load<Effect>("shaders/FogShader");
         }
 
         /// <summary>
@@ -146,8 +152,8 @@ namespace FogOfWar {
         protected override void Draw(GameTime gameTime) {
             GraphicsDevice.Clear(Color.White);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                null, null, null, null, null);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            fog.CurrentTechnique.Passes[0].Apply();
 
             foreach (Entity wall in walls) {
                 spriteBatch.Draw(wall.sprite, wall.getRect(), Color.White);
@@ -155,6 +161,7 @@ namespace FogOfWar {
 
             spriteBatch.Draw(tank.sprite, tank.getRect(), Color.White);
             spriteBatch.Draw(orb.sprite, orb.getRect(), Color.White);
+            spriteBatch.Draw(orb.sprite, orb.position, Color.White);
 
             spriteBatch.End();
 
