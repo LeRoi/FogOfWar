@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FogOfWar {
     public class Sprites {
+        public static string BACKGROUND = "background";
         public static string ORB = "orb";
         public static string TANK = "tank";
         public static string WALL = "wall";
@@ -17,6 +18,7 @@ namespace FogOfWar {
 
         public Sprites(ContentManager content) {
             sprites = new Dictionary<string, Texture2D>();
+            sprites[BACKGROUND] = content.Load<Texture2D>("backgrounds/background");
             sprites[ORB] = content.Load<Texture2D>("entities/orb");
             sprites[TANK] = content.Load<Texture2D>("entities/tank");
             sprites[WALL] = content.Load<Texture2D>("entities/wall");

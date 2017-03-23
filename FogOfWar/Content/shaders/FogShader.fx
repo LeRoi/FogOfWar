@@ -20,6 +20,8 @@ int height;
 float mouse_x;
 float mouse_y;
 
+float fog_density = 1; // 0 is more dense, 1 is less dense
+
 // Our pixel shader
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
@@ -29,7 +31,9 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float x_pos = (width * input.Position.x + width) / 2;
 	float normalized_y = abs(y_pos - mouse_y) / height;
 	float normalized_x = abs(x_pos - mouse_x) / width;
-	float saturation = 1 - max(normalized_y, normalized_x);
+	float saturation = fog_density - max(normalized_y, normalized_x);
+	color.rgb = color.rgb * saturation;
+	return color;
 	return color * saturation;
 }
 

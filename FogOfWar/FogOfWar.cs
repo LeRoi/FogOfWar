@@ -35,6 +35,9 @@ namespace FogOfWar {
         private int width = 500;
         private int height = 500;
 
+        // Background
+        private Texture2D background;
+
         // Walls
         private List<Entity> walls;
         private Texture2D wallSprite;
@@ -69,6 +72,8 @@ namespace FogOfWar {
         /// </summary>
         protected override void Initialize() {
             base.Initialize();
+
+            background = sprites[Sprites.BACKGROUND];
 
             orb = new Entity(sprites[Sprites.ORB], new Vector2(width / 2, height / 2));
             tank = new Entity(sprites[Sprites.TANK], new Vector2(100, 100));
@@ -167,6 +172,8 @@ namespace FogOfWar {
             fog.Parameters["mouse_x"].SetValue(mousex);
             fog.Parameters["mouse_y"].SetValue(mousey);
             fog.CurrentTechnique.Passes[0].Apply();
+
+            spriteBatch.Draw(background, Vector2.Zero, Color.White);
 
             foreach (Entity wall in walls) {
                 spriteBatch.Draw(wall.sprite, wall.getRect(), Color.White);
