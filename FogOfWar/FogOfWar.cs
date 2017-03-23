@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+using System;
 using System.Collections.Generic;
 
 /**
@@ -52,7 +53,7 @@ namespace FogOfWar {
             graphics.PreferredBackBufferHeight = height;
             graphics.PreferredBackBufferWidth = width;
 
-            this.IsMouseVisible = false;
+            this.IsMouseVisible = true;
             this.IsFixedTimeStep = true;
             graphics.SynchronizeWithVerticalRetrace = true;
             // Default to 60fps
@@ -103,6 +104,8 @@ namespace FogOfWar {
             sprites = new Sprites(Content);
 
             fog = Content.Load<Effect>("shaders/FogShader");
+            fog.Parameters["width"].SetValue(width);
+            fog.Parameters["height"].SetValue(height);
         }
 
         /// <summary>
@@ -153,6 +156,16 @@ namespace FogOfWar {
             GraphicsDevice.Clear(Color.White);
 
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+
+            MouseState mouse = Mouse.GetState();
+            float mousex = mouse.X;
+            float mousey = mouse.Y;
+            if (mousex < 0) mousex = 0;
+            if (mousex > width) mousex = width;
+            if (mousey < 0) mousey = 0;
+            if (mousey > height) mousey = height;
+            fog.Parameters["mouse_x"].SetValue(mousex);
+            fog.Parameters["mouse_y"].SetValue(mousey);
             fog.CurrentTechnique.Passes[0].Apply();
 
             foreach (Entity wall in walls) {

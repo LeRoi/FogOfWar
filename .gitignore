@@ -9,7 +9,6 @@
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
-FogOfWar/Content/
 
 # Build results
 [Dd]ebug/
