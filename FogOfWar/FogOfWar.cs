@@ -171,6 +171,8 @@ namespace FogOfWar {
             if (mousey > height) mousey = height;
             fog.Parameters["mouse_x"].SetValue(mousex);
             fog.Parameters["mouse_y"].SetValue(mousey);
+            fog.Parameters["orb_x"].SetValue(orb.position.X);
+            fog.Parameters["orb_y"].SetValue(orb.position.Y);
             fog.CurrentTechnique.Passes[0].Apply();
 
             spriteBatch.Draw(background, Vector2.Zero, Color.White);
