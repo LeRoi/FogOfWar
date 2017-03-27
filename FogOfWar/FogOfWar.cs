@@ -43,6 +43,7 @@ namespace FogOfWar {
         private Texture2D wallSprite;
 
         // Orb fields
+        // Position is not centered on the sprite but that's OK for this demo.
         private Entity orb;
         private int orbSpeed = 1;
 
@@ -173,6 +174,15 @@ namespace FogOfWar {
             fog.Parameters["mouse_y"].SetValue(mousey);
             fog.Parameters["orb_x"].SetValue(orb.position.X);
             fog.Parameters["orb_y"].SetValue(orb.position.Y);
+
+            List<Vector4> wallCoords = new List<Vector4>();
+            foreach (Entity wall in walls.GetRange(walls.Count - 7, 6)) {
+                Rectangle wallDims = wall.getRect();
+                wallCoords.Add(new Vector4(wallDims.Left, wallDims.Top, wallDims.Right, wallDims.Bottom));
+            }
+            fog.Parameters["walls"].SetValue(wallCoords.ToArray());
+            fog.Parameters["wall_count"].SetValue(6);
+
             fog.CurrentTechnique.Passes[0].Apply();
 
             spriteBatch.Draw(background, Vector2.Zero, Color.White);
