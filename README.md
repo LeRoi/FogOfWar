@@ -9,7 +9,9 @@ Goal is to:
 5. stylize border of visible versus not visible area
 
 ###Demo
+
 ![demo of build running](gifs/march_27_demo.gif)
 
 ###Misc
+
 You will need Monogame to build this.
