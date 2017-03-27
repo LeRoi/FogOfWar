@@ -10,7 +10,7 @@ using System.Collections.Generic;
  */
 namespace FogOfWar {
     public class FogOfWar : Game {
-        struct Entity {
+        public struct Entity {
             public Texture2D sprite;
             public Vector2 position;
 
@@ -41,6 +41,7 @@ namespace FogOfWar {
         // Walls
         private List<Entity> walls;
         private Texture2D wallSprite;
+        private List<Vector4> polygon; // Light map polygon
 
         // Orb fields
         // Position is not centered on the sprite but that's OK for this demo.
@@ -81,16 +82,17 @@ namespace FogOfWar {
 
             wallSprite = sprites[Sprites.WALL];
             walls = new List<Entity>();
-            for (int i = 0; i < width / wallSprite.Width + 1; i++) {
+            //for (int i = 0; i < width / wallSprite.Width + 1; i++) {
+            for (int i = 0; i < 3; i++) {
                 walls.Add(new Entity(wallSprite, getWallPosition(i, 0)));
                 walls.Add(new Entity(wallSprite, getWallPosition(i, height / wallSprite.Height)));
             }
 
             // Ignore the first and last to avoid doubling up on sprites in these areas.
-            for (int j = 1; j < height / wallSprite.Height; j++) {
+            /*for (int j = 1; j < height / wallSprite.Height; j++) {
                 walls.Add(new Entity(wallSprite, getWallPosition(0, j)));
                 walls.Add(new Entity(wallSprite, getWallPosition(width / wallSprite.Width, j)));
-            }
+            }*/
 
             walls.Add(new Entity(wallSprite, getWallPosition(4, 15)));
             walls.Add(new Entity(wallSprite, getWallPosition(5, 15)));
@@ -151,6 +153,8 @@ namespace FogOfWar {
 
             orb.position = intersects ? orb.position : newPosition;
 
+            polygon = LightMap.getLightMap(Mouse.GetState().Position, walls);
+
             base.Update(gameTime);
         }
 
@@ -189,6 +193,10 @@ namespace FogOfWar {
 
             foreach (Entity wall in walls) {
                 spriteBatch.Draw(wall.sprite, wall.getRect(), Color.White);
+            }
+
+            foreach (Vector4 point in polygon) {
+                spriteBatch.Draw(orb.sprite, new Vector2(point.X, point.Y), Color.White);
             }
 
             spriteBatch.Draw(tank.sprite, tank.getRect(), Color.White);

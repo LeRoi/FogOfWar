@@ -109,6 +109,10 @@ bool line_intersects(float2 src, float2 dst, float4 wall) {
 	return false;
 }
 
+
+
+//bool point_in_polygon
+
 // Our pixel shader
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
