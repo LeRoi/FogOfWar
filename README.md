@@ -15,3 +15,5 @@ Goal is to:
 ### Misc
 
 You will need Monogame to build this.
+
+Goals 1-3 are complete, goals 4 and 5 are indefinitely on hold.
