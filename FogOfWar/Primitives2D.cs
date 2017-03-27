@@ -1,11 +1,15 @@
-﻿using System;
+﻿/**
+ * https://bitbucket.org/C3/2d-xna-primitives/wiki/Home
+ * Copyright (c) 2012 John McDonald and Gary Texmo
+ */
+
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace FogOfWar {
     /// <summary>
-    /// Library is courtesy of https://bitbucket.org/C3/2d-xna-primitives/wiki/Home.
     /// </summary>
     public static class Primitives2D {
 

@@ -8,10 +8,10 @@ Goal is to:
 4. support multiple light sources
 5. stylize border of visible versus not visible area
 
-###Demo
+### Demo
 
 ![demo of build running](gifs/march_27_demo.gif)
 
-###Misc
+### Misc
 
 You will need Monogame to build this.
