@@ -1,21 +1,18 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.Xna.Framework;
 
 namespace FogOfWar {
     public class LightMap {
         private const double epsilon = 0.00001;
+        private const double removalThreshold = 1;
 
         /**
          * Returns a list of points which, when connected sequentially, forms a polygon whose
          * interior should be revealed given a light source at the provided coordinates.
          * Thanks to http://ncase.me/sight-and-light/ for inspiration for this approach.
          */
-        public static List<Vector4> getLightMap(Vector2 source, List<FogOfWar.Entity> walls) {
+        public static List<Vector2> getLightMap(Vector2 source, List<FogOfWar.Wall> walls) {
             HashSet<Vector2> points = uniquePoints(walls);
             HashSet<Vector4> segments = uniqueSegments(walls);
             HashSet<double> angles = getAngles(source, points);
@@ -39,44 +36,69 @@ namespace FogOfWar {
                         assigned = true;
                     }
                 }
-                intersections.Add(new Vector4(closest, (float) angle));
+
+                if (assigned) intersections.Add(new Vector4(closest, (float) angle));
             }
 
+            // Sort points by angle, and remove clustered points to ease processing load.
             intersections.Sort(compareIntersects);
-            return intersections;
+            List<Vector2> polygonPoints = new List<Vector2>();
+            foreach (Vector4 point in intersections) {
+                Vector2 point2 = new Vector2(point.X, point.Y);
+                bool same = false;
+                foreach (Vector2 v in polygonPoints) {
+                    same |= distance(v, point2) < removalThreshold;
+                }
+                if (!same) {
+                    polygonPoints.Add(point2);
+                }
+            }
+            return polygonPoints;
         }
 
-        public static List<Vector4> getLightMap(Point source, List<FogOfWar.Entity> walls) {
+        public static List<Vector2> getLightMap(Point source, List<FogOfWar.Wall> walls) {
             return getLightMap(new Vector2(source.X, source.Y), walls);
         }
 
         /**
          * Returns a list of all unique wall points.
          */
-        private static HashSet<Vector2> uniquePoints(List<FogOfWar.Entity> walls) {
+        private static HashSet<Vector2> uniquePoints(List<FogOfWar.Wall> walls) {
             HashSet<Vector2> points = new HashSet<Vector2>();
-            foreach (FogOfWar.Entity wall in walls) {
+            foreach (FogOfWar.Wall wall in walls) {
                 Rectangle sides = wall.getRect();
                 points.Add(new Vector2(sides.Left, sides.Top));
                 points.Add(new Vector2(sides.Right, sides.Top));
                 points.Add(new Vector2(sides.Left, sides.Bottom));
                 points.Add(new Vector2(sides.Right, sides.Bottom));
             }
+
+            // Add corners of window.
+            points.Add(new Vector2(0, 0));
+            points.Add(new Vector2(0, FogOfWar.height));
+            points.Add(new Vector2(FogOfWar.width, 0));
+            points.Add(new Vector2(FogOfWar.width, FogOfWar.height));
             return points;
         }
 
         /**
          * Returns a list of all unique wall segments.
          */
-        private static HashSet<Vector4> uniqueSegments(List<FogOfWar.Entity> walls) {
+        private static HashSet<Vector4> uniqueSegments(List<FogOfWar.Wall> walls) {
             HashSet<Vector4> segments = new HashSet<Vector4>();
-            foreach (FogOfWar.Entity wall in walls) {
+            foreach (FogOfWar.Wall wall in walls) {
                 Rectangle sides = wall.getRect();
                 segments.Add(new Vector4(sides.Left, sides.Top, sides.Right, sides.Top));
                 segments.Add(new Vector4(sides.Left, sides.Top, sides.Left, sides.Bottom));
                 segments.Add(new Vector4(sides.Left, sides.Bottom, sides.Right, sides.Bottom));
                 segments.Add(new Vector4(sides.Right, sides.Top, sides.Right, sides.Bottom));
             }
+
+            // Add walls for window.
+            segments.Add(new Vector4(0, 0, FogOfWar.width, 0));
+            segments.Add(new Vector4(0, 0, 0, FogOfWar.height));
+            segments.Add(new Vector4(0, FogOfWar.height, FogOfWar.width, FogOfWar.height));
+            segments.Add(new Vector4(FogOfWar.width, 0, FogOfWar.width, FogOfWar.height));
             return segments;
         }
 
@@ -120,8 +142,12 @@ namespace FogOfWar {
                 (float) t1);
         }
 
+        private static double distance(Vector2 left, Vector2 right) {
+            return Math.Sqrt(Math.Pow(left.X - right.X, 2) + Math.Pow(left.Y - right.Y, 2));
+        }
+
         private static int compareIntersects(Vector4 left, Vector4 right) {
-            return (int) (left.W - right.W);
+            return left.W.CompareTo(right.W);
         }
     }
 }

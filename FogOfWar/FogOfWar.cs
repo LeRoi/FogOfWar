@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
-using System;
 using System.Collections.Generic;
 
 /**
@@ -10,7 +8,7 @@ using System.Collections.Generic;
  */
 namespace FogOfWar {
     public class FogOfWar : Game {
-        public struct Entity {
+        public class Entity {
             public Texture2D sprite;
             public Vector2 position;
 
@@ -23,6 +21,35 @@ namespace FogOfWar {
                 return new Rectangle((int) position.X, (int) position.Y,
                     sprite.Width, sprite.Height);
             }
+
+            public void draw(SpriteBatch batch) {
+                batch.Draw(sprite, getRect(), Color.White);
+            }
+        }
+
+        public class Wall : Entity {
+            public int width;
+            public int height;
+
+            public Wall(Texture2D sprite, Vector2 position, int width, int height) :
+                base(sprite, position) {
+                this.width = width;
+                this.height = height;
+            }
+
+            public new Rectangle getRect() {
+                return new Rectangle((int) position.X, (int) position.Y,
+                    sprite.Width * width, sprite.Height * height);
+            }
+
+            public new void draw(SpriteBatch batch) {
+                for (int i = 0; i < width; i++) {
+                    for (int j = 0; j < height; j++) {
+                        batch.Draw(sprite, new Vector2(position.X + sprite.Width * i,
+                            position.Y + sprite.Height * j));
+                    }
+                }
+            }
         }
 
         GraphicsDeviceManager graphics;
@@ -32,24 +59,27 @@ namespace FogOfWar {
 
         Effect fog;
 
-        private int width = 500;
-        private int height = 500;
+        public static int width = 500;
+        public static int height = 500;
 
         // Background
         private Texture2D background;
 
         // Walls
-        private List<Entity> walls;
+        private List<Wall> walls;
         private Texture2D wallSprite;
-        private List<Vector4> polygon; // Light map polygon
+        private List<Vector2> polygon; // Light map polygon
+        private GameGeometry geometry; // Light map geometry
 
         // Orb fields
         // Position is not centered on the sprite but that's OK for this demo.
         private Entity orb;
-        private int orbSpeed = 1;
+        private int orbSpeed = 2;
 
         // Tank fields
         private Entity tank;
+
+        private bool showPolygon = false;
 
         public FogOfWar() {
             graphics = new GraphicsDeviceManager(this);
@@ -81,25 +111,18 @@ namespace FogOfWar {
             tank = new Entity(sprites[Sprites.TANK], new Vector2(100, 100));
 
             wallSprite = sprites[Sprites.WALL];
-            walls = new List<Entity>();
-            //for (int i = 0; i < width / wallSprite.Width + 1; i++) {
-            for (int i = 0; i < 3; i++) {
-                walls.Add(new Entity(wallSprite, getWallPosition(i, 0)));
-                walls.Add(new Entity(wallSprite, getWallPosition(i, height / wallSprite.Height)));
-            }
+            walls = new List<Wall>();
 
-            // Ignore the first and last to avoid doubling up on sprites in these areas.
-            /*for (int j = 1; j < height / wallSprite.Height; j++) {
-                walls.Add(new Entity(wallSprite, getWallPosition(0, j)));
-                walls.Add(new Entity(wallSprite, getWallPosition(width / wallSprite.Width, j)));
-            }*/
-
-            walls.Add(new Entity(wallSprite, getWallPosition(4, 15)));
-            walls.Add(new Entity(wallSprite, getWallPosition(5, 15)));
-            walls.Add(new Entity(wallSprite, getWallPosition(6, 15)));
-            walls.Add(new Entity(wallSprite, getWallPosition(7, 15)));
-            walls.Add(new Entity(wallSprite, getWallPosition(8, 15)));
-            walls.Add(new Entity(wallSprite, getWallPosition(9, 15)));
+            walls.Add(new Wall(wallSprite, getWallPosition(4, 15), 6, 1));
+            walls.Add(new Wall(wallSprite, getWallPosition(20, 20), 1, 1));
+            walls.Add(new Wall(wallSprite, getWallPosition(3, 6), 3, 3));
+            walls.Add(new Wall(wallSprite, getWallPosition(10, 10), 1, 1));
+            walls.Add(new Wall(wallSprite, getWallPosition(12, 10), 1, 1));
+            walls.Add(new Wall(wallSprite, getWallPosition(14, 10), 1, 1));
+            walls.Add(new Wall(wallSprite, getWallPosition(16, 10), 1, 1));
+            walls.Add(new Wall(wallSprite, getWallPosition(18, 10), 1, 1));
+            walls.Add(new Wall(wallSprite, getWallPosition(20, 10), 1, 1));
+            walls.Add(new Wall(wallSprite, getWallPosition(22, 10), 1, 1));
         }
 
         /// <summary>
@@ -144,7 +167,7 @@ namespace FogOfWar {
             Rectangle newOrb = new Rectangle((int) newPosition.X, (int) newPosition.Y,
                     orb.sprite.Width, orb.sprite.Height);
             bool intersects = false;
-            foreach (Entity wall in walls) {
+            foreach (Wall wall in walls) {
                 Rectangle wallDims = wall.getRect();
                 if (wall.getRect().Intersects(newOrb)) intersects = true;
             }
@@ -152,8 +175,9 @@ namespace FogOfWar {
             if (tank.getRect().Intersects(newOrb)) intersects = true;
 
             orb.position = intersects ? orb.position : newPosition;
-
+            
             polygon = LightMap.getLightMap(Mouse.GetState().Position, walls);
+            geometry = new GameGeometry(polygon);
 
             base.Update(gameTime);
         }
@@ -174,34 +198,40 @@ namespace FogOfWar {
             if (mousex > width) mousex = width;
             if (mousey < 0) mousey = 0;
             if (mousey > height) mousey = height;
-            fog.Parameters["mouse_x"].SetValue(mousex);
-            fog.Parameters["mouse_y"].SetValue(mousey);
-            fog.Parameters["orb_x"].SetValue(orb.position.X);
-            fog.Parameters["orb_y"].SetValue(orb.position.Y);
-
-            List<Vector4> wallCoords = new List<Vector4>();
-            foreach (Entity wall in walls.GetRange(walls.Count - 7, 6)) {
-                Rectangle wallDims = wall.getRect();
-                wallCoords.Add(new Vector4(wallDims.Left, wallDims.Top, wallDims.Right, wallDims.Bottom));
-            }
-            fog.Parameters["walls"].SetValue(wallCoords.ToArray());
-            fog.Parameters["wall_count"].SetValue(6);
+            fog.Parameters["mouseX"].SetValue(mousex);
+            fog.Parameters["mouseY"].SetValue(mousey);
+            fog.Parameters["orbX"].SetValue(orb.position.X);
+            fog.Parameters["orbY"].SetValue(orb.position.Y);
+            
+            fog.Parameters["polygonCount"].SetValue(polygon.Count);
+            fog.Parameters["xPoints"].SetValue(geometry.XPoints.ToArray());
+            fog.Parameters["yPoints"].SetValue(geometry.YPoints.ToArray());
+            fog.Parameters["multiples"].SetValue(geometry.PointMultiples.ToArray());
+            fog.Parameters["constants"].SetValue(geometry.PointConstants.ToArray());
 
             fog.CurrentTechnique.Passes[0].Apply();
 
             spriteBatch.Draw(background, Vector2.Zero, Color.White);
 
-            foreach (Entity wall in walls) {
-                spriteBatch.Draw(wall.sprite, wall.getRect(), Color.White);
+            foreach (Wall wall in walls) {
+                wall.draw(spriteBatch);
             }
 
-            foreach (Vector4 point in polygon) {
-                spriteBatch.Draw(orb.sprite, new Vector2(point.X, point.Y), Color.White);
+            // Render outline of visible polygon.
+            if (showPolygon) {
+                foreach (Vector2 point in polygon) {
+                    spriteBatch.Draw(orb.sprite, point, Color.White);
+                }
+
+                for (int i = 0; i < polygon.Count; i++) {
+                    Vector2 point = polygon[i];
+                    Vector2 prior = i == 0 ? polygon[polygon.Count - 1] : polygon[i - 1];
+                    spriteBatch.DrawLine(point, prior, Color.Red);
+                }
             }
 
-            spriteBatch.Draw(tank.sprite, tank.getRect(), Color.White);
-            spriteBatch.Draw(orb.sprite, orb.getRect(), Color.White);
-            spriteBatch.Draw(orb.sprite, orb.position, Color.White);
+            tank.draw(spriteBatch);
+            orb.draw(spriteBatch);
 
             spriteBatch.End();
 
