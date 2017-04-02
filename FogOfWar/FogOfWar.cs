@@ -88,6 +88,8 @@ namespace FogOfWar {
             graphics.PreferredBackBufferHeight = height;
             graphics.PreferredBackBufferWidth = width;
 
+            graphics.GraphicsProfile = GraphicsProfile.HiDef;
+
             this.IsMouseVisible = true;
             this.IsFixedTimeStep = true;
             graphics.SynchronizeWithVerticalRetrace = true;
